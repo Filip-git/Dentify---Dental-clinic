@@ -1,2 +1,2 @@
 # Dentify---Dental-clinic
-React, Node, MySQL Dental clinic appointments app. 
+React, SCSS, Node, MySQL Dental clinic appointments app. 
