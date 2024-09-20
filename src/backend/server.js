@@ -189,18 +189,18 @@ app.post('/appointments', (req, res) => {
 
 
 
-// Update an appointment (use the correct field 'repair_name' instead of 'details')
+// Update an appointment (with name, date, and time fields)
 app.put('/appointments/:id', (req, res) => {
     const appointmentId = req.params.id;
-    const { repair_name } = req.body;
+    const { repair_name, appointment_date } = req.body;
 
-    if (!repair_name) {
-        return res.status(400).json({ message: 'repair_name is required' });
+    if (!repair_name || !appointment_date) {
+        return res.status(400).json({ message: 'repair_name and appointment_date are required' });
     }
 
     connection.query(
-        'UPDATE appointments SET repair_name = ? WHERE id = ?',
-        [repair_name, appointmentId],
+        'UPDATE appointments SET repair_name = ?, appointment_date = ? WHERE id = ?',
+        [repair_name, appointment_date, appointmentId],
         (err) => {
             if (err) {
                 console.error('Error updating appointment:', err);
@@ -210,6 +210,7 @@ app.put('/appointments/:id', (req, res) => {
         }
     );
 });
+
 
 
 // Delete an appointment

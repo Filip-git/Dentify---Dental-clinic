@@ -13,6 +13,8 @@ const Appointments = () => {
     const [appointmentTime, setAppointmentTime] = useState('');
     const [editAppointmentId, setEditAppointmentId] = useState(null);
     const [editDetails, setEditDetails] = useState('');
+    const [editDate, setEditDate] = useState('');
+    const [editTime, setEditTime] = useState('');
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     
@@ -90,25 +92,33 @@ const Appointments = () => {
 
     const handleEditAppointment = async (id) => {
         try {
+            const formattedDate = dayjs(`${editDate} ${editTime}`).format('YYYY-MM-DD HH:mm:ss');
+
             await fetch(`http://localhost:5050/appointments/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ repair_name: editDetails }),
+                body: JSON.stringify({
+                    repair_name: editDetails,
+                    appointment_date: formattedDate,
+                }),
             });
 
             setAppointments(appointments.map((appointment) =>
-                appointment.id === id ? { ...appointment, repair_name: editDetails } : appointment
+                appointment.id === id ? { ...appointment, repair_name: editDetails, appointment_date: formattedDate } : appointment
             ));
             setEditAppointmentId(null);
             setEditDetails('');
+            setEditDate('');
+            setEditTime('');
             toast.success('Appointment updated successfully');
         } catch (error) {
             console.error('Error editing appointment:', error);
             toast.error('Error updating appointment');
         }
     };
+
 
     const handleDeleteAppointment = async (id) => {
         try {
@@ -153,15 +163,32 @@ const Appointments = () => {
             <h2>Your Appointments</h2>
             <ul className={styles.appointmentsList}>
                 {appointments.length > 0 ? appointments.map((appointment) => (
-                    <li key={appointment.id}> 
+                    <li key={appointment.id}>
                         <div className={styles.appointmentDetails}>
                             {editAppointmentId === appointment.id ? (
-                                <input
-                                    type="text"
-                                    value={editDetails}
-                                    className={styles.editInput}
-                                    onChange={(e) => setEditDetails(e.target.value)}
-                                />
+                                <>
+                                    <input
+                                        type="text"
+                                        value={editDetails}
+                                        className={styles.editInput}
+                                        onChange={(e) => setEditDetails(e.target.value)}
+                                        placeholder="Edit appointment details"
+                                    />
+                                    <input
+                                        type="date"
+                                        value={editDate}
+                                        className={styles.editInput}
+                                        onChange={(e) => setEditDate(e.target.value)}
+                                        placeholder="Edit appointment date"
+                                    />
+                                    <input
+                                        type="time"
+                                        value={editTime}
+                                        className={styles.editInput}
+                                        onChange={(e) => setEditTime(e.target.value)}
+                                        placeholder="Edit appointment time"
+                                    />
+                                </>
                             ) : (
                                 <span>{appointment.repair_name} - {new Date(appointment.appointment_date).toLocaleDateString()} {new Date(appointment.appointment_date).toLocaleTimeString()}</span>
                             )}
@@ -184,6 +211,8 @@ const Appointments = () => {
                                         onClick={() => {
                                             setEditAppointmentId(appointment.id);
                                             setEditDetails(appointment.repair_name);
+                                            setEditDate(appointment.appointment_date.split('T')[0]);
+                                            setEditTime(appointment.appointment_date.split('T')[1].slice(0, 5));
                                         }}
                                     >
                                         Edit
